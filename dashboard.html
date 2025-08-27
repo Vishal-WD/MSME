@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HealthCare India - Comprehensive Medical App</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .popup-gradient {
+            background: linear-gradient(180deg, #edafb8 0%, #f7e1d7 25%, #dedbd2 50%, #b0c4b1 75%, #4a5759 100%);
+        }
+
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .card-shadow {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+
+        .card-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        .pulse-animation {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .slide-in {
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(-100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .health-streak {
+            background: linear-gradient(45deg, #ff6b6b, #feca57);
+        }
+
+        .emergency-btn {
+            background: linear-gradient(45deg, #ff4757, #ff3838);
+            box-shadow: 0 4px 15px rgba(255, 71, 87, 0.4);
+        }
+
+        .success-green {
+            background: linear-gradient(45deg, #2ed573, #1e90ff);
+        }
+
+        .voice-recording {
+            animation: voicePulse 1.5s infinite;
+        }
+
+        @keyframes voicePulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .offline-indicator {
+            background: linear-gradient(45deg, #ffa726, #ff7043);
+        }
+
+        .queue-update {
+            animation: queueBlink 2s infinite;
+        }
+
+        @keyframes queueBlink {
+            0%, 100% { background-color: #e3f2fd; }
+            50% { background-color: #bbdefb; }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 transition-all duration-300">
+    <!-- Hamburger and Sliding Sidebar Panel -->
+    <div class="flex min-h-screen" style="background: linear-gradient(180deg, #edafb8 0%, #f7e1d7 25%, #dedbd2 50%, #b0c4b1 75%, #4a5759 100%);">
+        <!-- Hamburger Icon -->
+        <button id="sidebar-toggle" class="fixed top-4 left-4 z-50 bg-white rounded-lg shadow-lg p-2 flex items-center justify-center md:hidden">
+            <span class="sr-only">Open sidebar</span>
+            <svg class="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+        </button>
+    <!-- Sidebar -->
+    <aside id="sidebar" class="fixed top-0 left-0 h-full w-64 border-r border-gray-200 flex-col py-6 px-4 card-shadow hidden z-50 md:flex md:relative md:z-0" style="background: linear-gradient(180deg, #edafb8 0%, #f7e1d7 25%, #dedbd2 50%, #b0c4b1 75%, #4a5759 100%);">
+            <div class="flex items-center space-x-2 mb-8">
+                <div class="flex flex-col items-start">
+                    <span class="flex items-center text-xl font-bold text-gray-800"><i class="fas fa-heartbeat text-red-500 mr-2"></i>HealthCare India</span>
+                </div>
+            </div>
+            <div id="offline-indicator" class="hidden offline-indicator text-white px-3 py-1 rounded-full text-sm mb-4">
+                <i class="fas fa-wifi-slash mr-1"></i>
+                Offline Mode
+            </div>
+            <div class="mb-6">
+                <div class="bg-gray-100 rounded-xl p-1 inline-flex w-full">
+                    <button id="patient-mode" class="flex-1 px-4 py-2 rounded-lg bg-blue-500 text-white font-medium transition-all">
+                        <i class="fas fa-user mr-2"></i>Patient
+                    </button>
+                    <button id="doctor-mode" class="flex-1 px-4 py-2 rounded-lg text-gray-600 font-medium transition-all hover:bg-gray-200">
+                        <i class="fas fa-user-md mr-2"></i>Doctor
+                    </button>
+                </div>
+            </div>
+            <div class="mb-6">
+                <button id="emergency-sos" class="emergency-btn text-white w-full py-3 rounded-lg font-bold text-base hover:scale-105 transition-transform mb-2">
+                    <i class="fas fa-exclamation-triangle mr-2"></i>
+                    <span data-translate="emergency_sos">Emergency SOS</span>
+                </button>
+            </div>
+            <!-- Patient Quick Actions (visible only in patient mode) -->
+            <div id="sidebar-patient-actions" class="space-y-2 mb-8">
+                <button class="quick-action-btn w-full bg-white p-3 rounded-lg card-shadow card-hover text-left flex items-center" data-action="book-appointment">
+                    <span class="p-2 rounded-full bg-blue-100 mr-3"><i class="fas fa-calendar-plus text-blue-600 text-lg"></i></span>
+                    <span class="text-sm font-medium text-gray-800" data-translate="book_appointment">Book Appointment</span>
+                </button>
+                <button class="quick-action-btn w-full bg-white p-3 rounded-lg card-shadow card-hover text-left flex items-center" data-action="health-records">
+                    <span class="p-2 rounded-full bg-green-100 mr-3"><i class="fas fa-file-medical text-green-600 text-lg"></i></span>
+                    <span class="text-sm font-medium text-gray-800" data-translate="health_records">Health Records</span>
+                </button>
+                <button class="quick-action-btn w-full bg-white p-3 rounded-lg card-shadow card-hover text-left flex items-center" data-action="medicine-orders">
+                    <span class="p-2 rounded-full bg-purple-100 mr-3"><i class="fas fa-prescription-bottle text-purple-600 text-lg"></i></span>
+                    <span class="text-sm font-medium text-gray-800" data-translate="medicine_orders">Medicine Orders</span>
+                </button>
+                <button class="quick-action-btn w-full bg-white p-3 rounded-lg card-shadow card-hover text-left flex items-center" data-action="family-health">
+                    <span class="p-2 rounded-full bg-pink-100 mr-3"><i class="fas fa-users text-pink-600 text-lg"></i></span>
+                    <span class="text-sm font-medium text-gray-800" data-translate="family_health">Family Health</span>
+                </button>
+                <button class="quick-action-btn w-full bg-white p-3 rounded-lg card-shadow card-hover text-left flex items-center" data-action="wellness-tracker">
+                    <span class="p-2 rounded-full bg-yellow-100 mr-3"><i class="fas fa-trophy text-yellow-600 text-lg"></i></span>
+                    <span class="text-sm font-medium text-gray-800" data-translate="wellness_tracker">Wellness Tracker</span>
+                </button>
+                <button class="quick-action-btn w-full bg-white p-3 rounded-lg card-shadow card-hover text-left flex items-center" data-action="lab-reports">
+                    <span class="p-2 rounded-full bg-indigo-100 mr-3"><i class="fas fa-flask text-indigo-600 text-lg"></i></span>
+                    <span class="text-sm font-medium text-gray-800" data-translate="lab_reports">Lab Reports</span>
+                </button>
+            </div>
+            <!-- Doctor Quick Actions (visible only in doctor mode) -->
+            <div id="sidebar-doctor-actions" class="space-y-2 mb-8">
+                <button class="w-full bg-white p-3 rounded-lg card-shadow card-hover text-left flex items-center" data-action="appointment-queue">
+                    <span class="p-2 rounded-full bg-blue-100 mr-3"><i class="fas fa-list text-blue-600 text-lg"></i></span>
+                    <span class="text-sm font-medium text-gray-800">Appointment Queue</span>
+                </button>
+                <button class="w-full bg-white p-3 rounded-lg card-shadow card-hover text-left flex items-center" data-action="memory-board">
+                    <span class="p-2 rounded-full bg-green-100 mr-3"><i class="fas fa-brain text-green-600 text-lg"></i></span>
+                    <span class="text-sm font-medium text-gray-800">Memory Board</span>
+                </button>
+                <button class="w-full bg-white p-3 rounded-lg card-shadow card-hover text-left flex items-center" data-action="prescription-pad">
+                    <span class="p-2 rounded-full bg-purple-100 mr-3"><i class="fas fa-prescription-bottle-alt text-purple-600 text-lg"></i></span>
+                    <span class="text-sm font-medium text-gray-800">Prescription Pad</span>
+                </button>
+                <button class="w-full bg-white p-3 rounded-lg card-shadow card-hover text-left flex items-center" data-action="patient-insights">
+                    <span class="p-2 rounded-full bg-indigo-100 mr-3"><i class="fas fa-chart-line text-indigo-600 text-lg"></i></span>
+                    <span class="text-sm font-medium text-gray-800">Patient Insights</span>
+                </button>
+            </div>
+            <!-- Profile at Bottom -->
+            <div class="mt-auto pt-6">
+                <button id="profile-section" class="flex items-center space-x-2 w-full bg-transparent border-none outline-none cursor-pointer">
+                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='16' fill='%234F46E5'/%3E%3Ctext x='16' y='20' text-anchor='middle' fill='white' font-size='12' font-weight='bold'%3ES%3C/text%3E%3C/svg%3E" alt="Profile" class="w-8 h-8 rounded-full">
+                    <span id="sidebar-profile-name" class="text-sm font-medium text-gray-700">Sabari Vasan</span>
+                </button>
+            </div>
+    </aside>
+    <!-- Main Content -->
+    <main class="flex-1 px-8 py-8 md:ml-64">
+            <!-- HealthCare India Tagline -->
+            <div class="flex items-center space-x-3 mb-10">
+                <i class="fas fa-heartbeat text-3xl text-red-500"></i>
+                <h1 class="text-3xl font-extrabold text-gray-900 tracking-wide">HealthCare India</h1>
+            </div>
+            <!-- Patient Dashboard -->
+            <div id="patient-dashboard" class="space-y-6">
+                <!-- Health Summary Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <!-- Health Score -->
+                    <div class="bg-white rounded-xl p-6 card-shadow card-hover">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="p-3 rounded-full bg-green-100">
+                                   <i class="fas fa-heart text-green-600 text-xl"></i>
+                            </div>
+                            <span class="text-2xl font-bold text-green-600">85</span>
+                        </div>
+                        <h3 class="font-semibold text-gray-800" data-translate="health_score">Health Score</h3>
+                        <p class="text-sm text-gray-600" data-translate="excellent_condition">Excellent Condition</p>
+                    </div>
+                    <!-- ...existing health summary cards... -->
+                    <div class="bg-white rounded-xl p-6 card-shadow card-hover">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="p-3 rounded-full health-streak">
+                                   <i class="fas fa-fire text-white text-xl"></i>
+                            </div>
+                            <span class="text-2xl font-bold text-orange-600">12</span>
+                        </div>
+                        <h3 class="font-semibold text-gray-800" data-translate="wellness_streak">Wellness Streak</h3>
+                        <p class="text-sm text-gray-600" data-translate="days_active">Days Active</p>
+                    </div>
+                    <div class="bg-white rounded-xl p-6 card-shadow card-hover">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="p-3 rounded-full bg-blue-100">
+                                   <i class="fas fa-calendar text-blue-600 text-xl"></i>
+                            </div>
+                            <span class="text-sm font-bold text-blue-600">Today</span>
+                        </div>
+                        <h3 class="font-semibold text-gray-800" data-translate="next_appointment">Next Appointment</h3>
+                        <p class="text-sm text-gray-600">Dr. Kumar - 3:30 PM</p>
+                    </div>
+                    <div class="bg-white rounded-xl p-6 card-shadow card-hover">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="p-3 rounded-full bg-purple-100">
+                                   <i class="fas fa-pills text-purple-600 text-xl pulse-animation"></i>
+                            </div>
+                            <span class="text-sm font-bold text-purple-600">Due</span>
+                        </div>
+                        <h3 class="font-semibold text-gray-800" data-translate="medicine_reminder">Medicine Reminder</h3>
+                        <p class="text-sm text-gray-600">Vitamin D - After Lunch</p>
+                    </div>
+                </div>
+            </div>
+            <!-- Doctor Dashboard -->
+            <div id="doctor-dashboard" class="space-y-6 hidden">
+                <!-- Doctor Stats -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                    <div class="bg-white rounded-xl p-6 card-shadow">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="p-3 rounded-full bg-blue-100">
+                                <i class="fas fa-users text-blue-600 text-xl"></i>
+                            </div>
+                            <span class="text-2xl font-bold text-blue-600">24</span>
+                        </div>
+                        <h3 class="font-semibold text-gray-800">Today's Patients</h3>
+                        <p class="text-sm text-gray-600">8 Completed, 16 Pending</p>
+                    </div>
+                    <!-- ...existing doctor stats cards... -->
+                    <div class="bg-white rounded-xl p-6 card-shadow">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="p-3 rounded-full bg-green-100">
+                                <i class="fas fa-clock text-green-600 text-xl"></i>
+                            </div>
+                            <span class="text-2xl font-bold text-green-600">15</span>
+                        </div>
+                        <h3 class="font-semibold text-gray-800">Avg. Consultation</h3>
+                        <p class="text-sm text-gray-600">Minutes per patient</p>
+                    </div>
+                    <div class="bg-white rounded-xl p-6 card-shadow">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="p-3 rounded-full bg-yellow-100">
+                                <i class="fas fa-star text-yellow-600 text-xl"></i>
+                            </div>
+                            <span class="text-2xl font-bold text-yellow-600">4.8</span>
+                        </div>
+                        <h3 class="font-semibold text-gray-800">Patient Rating</h3>
+                        <p class="text-sm text-gray-600">Based on 156 reviews</p>
+                    </div>
+                    <div class="bg-white rounded-xl p-6 card-shadow">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="p-3 rounded-full bg-purple-100">
+                                <i class="fas fa-prescription text-purple-600 text-xl"></i>
+                            </div>
+                            <span class="text-2xl font-bold text-purple-600">42</span>
+                        </div>
+                        <h3 class="font-semibold text-gray-800">Prescriptions</h3>
+                        <p class="text-sm text-gray-600">Issued this week</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal Container -->
+    <div id="modal-container" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
+    <div id="modal-content" class="popup-gradient rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <!-- Modal content will be dynamically inserted here -->
+            <style>
+                .popup-gradient {
+                    background: linear-gradient(180deg, #edafb8 0%, #f7e1d7 25%, #dedbd2 50%, #b0c4b1 75%, #4a5759 100%);
+                }
+            </style>
+        </div>
+    </div>
+
+    <!-- Voice Recording Indicator -->
+    <div id="voice-indicator" class="fixed bottom-6 right-6 hidden">
+        <div class="bg-red-500 text-white p-4 rounded-full voice-recording">
+            <i class="fas fa-microphone text-xl"></i>
+        </div>
+    </div>
+
+    <!-- Success Toast -->
+    <div id="success-toast" class="fixed top-20 right-6 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg hidden fade-in">
+        <i class="fas fa-check-circle mr-2"></i>
+        <span id="toast-message">Action completed successfully!</span>
+    </div>
+
+    <script type="module">
+        // Update sidebar profile name and avatar on mode switch
+        function updateSidebarProfile() {
+            const nameSpan = document.getElementById('sidebar-profile-name');
+            const avatarImg = document.querySelector('#profile-section img');
+            if (!nameSpan || !avatarImg) return;
+            const userType = window.currentUserType || 'patient';
+            if (userType === 'doctor') {
+                nameSpan.textContent = 'Vishal';
+                avatarImg.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='16' fill='%234F46E5'/%3E%3Ctext x='16' y='20' text-anchor='middle' fill='white' font-size='12' font-weight='bold'%3EV%3C/text%3E%3C/svg%3E";
+            } else {
+                nameSpan.textContent = 'Sabari Vasan';
+                avatarImg.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='16' fill='%234F46E5'/%3E%3Ctext x='16' y='20' text-anchor='middle' fill='white' font-size='12' font-weight='bold'%3ES%3C/text%3E%3C/svg%3E";
+            }
+        }
+        // Listen for mode switch and update after switchUserType
+        function handleModeSwitch(type) {
+            window.currentUserType = type;
+            switchUserType(type);
+            updateSidebarProfile();
+        }
+        document.getElementById('patient-mode').addEventListener('click', function() { handleModeSwitch('patient'); });
+        document.getElementById('doctor-mode').addEventListener('click', function() { handleModeSwitch('doctor'); });
+        // Set initial profile after DOMContentLoaded and initial mode
+        document.addEventListener('DOMContentLoaded', function() {
+            updateSidebarProfile();
+        });
+        // Profile modal logic
+        function getProfileDetails() {
+            // Example data, replace with real user data as needed
+            const userType = window.currentUserType || 'patient';
+            let name = '';
+            let mail = '';
+            let password = '********';
+            let doctorId = 'DOC-12345';
+            let gender = 'male';
+            if (userType === 'doctor') {
+                name = 'Vishal';
+                mail = 'vishal@email.com';
+                gender = 'male';
+            } else {
+                name = 'Sabari Vasan';
+                mail = 'sabari.vasan@email.com';
+                gender = 'male';
+            }
+
+            let avatar = '';
+            if (userType === 'doctor') {
+                avatar = gender === 'female' ? '👩‍⚕️' : '🧑‍⚕️';
+            } else {
+                avatar = gender === 'female' ? '🧑‍🦱' : '🧑‍🦰';
+            }
+
+            let html = `
+                <div class='relative rounded-xl p-6 card-shadow text-center overflow-hidden' style="background: linear-gradient(120deg, #e0e7ff 0%, #f8fafc 100%);">
+                    <svg class='absolute left-0 bottom-0 w-full h-48' viewBox='0 0 400 180' fill='none' xmlns='http://www.w3.org/2000/svg' style='z-index:0;'>
+                        <rect x='0' y='120' width='400' height='60' fill='#c7d2fe'/>
+                        <rect x='40' y='80' width='60' height='100' rx='16' fill='#a5b4fc'/>
+                        <rect x='120' y='100' width='80' height='80' rx='16' fill='#818cf8'/>
+                        <rect x='220' y='60' width='60' height='120' rx='16' fill='#6366f1'/>
+                        <rect x='300' y='120' width='60' height='60' rx='16' fill='#a5b4fc'/>
+                        <circle cx='60' cy='140' r='14' fill='#fff'/>
+                        <circle cx='140' cy='160' r='14' fill='#fff'/>
+                        <circle cx='250' cy='120' r='14' fill='#fff'/>
+                        <rect x='180' y='160' width='40' height='18' rx='9' fill='#fff'/>
+                        <rect x='90' y='60' width='40' height='30' rx='8' fill='#e0e7ff'/>
+                        <rect x='270' y='90' width='30' height='20' rx='6' fill='#e0e7ff'/>
+                    </svg>
+                    <div class='relative z-10 flex flex-col items-center mb-4'>
+                        <span class='text-5xl'>${avatar}</span>
+                        <span class='text-lg font-bold text-blue-700 mt-2'>${name}</span>
+                        <span class='text-sm text-gray-500'>${userType === 'doctor' ? 'Doctor' : 'Patient'}</span>
+                    </div>
+                    <div class='relative z-10 mb-3 flex items-center justify-center gap-2'>
+                        <span class='text-xl'>📧</span>
+                        <span class='font-semibold text-gray-700'>Email:</span>
+                        <span class='text-gray-800'>${mail}</span>
+                    </div>
+                    <div class='relative z-10 mb-3 flex items-center justify-center gap-2'>
+                        <span class='text-xl'>🔒</span>
+                        <span class='font-semibold text-gray-700'>Password:</span>
+                        <span class='text-gray-800'>${password}</span>
+                    </div>
+                    ${userType === 'doctor' ? `
+                    <div class='relative z-10 mb-3 flex items-center justify-center gap-2'>
+                        <span class='text-xl'>🆔</span>
+                        <span class='font-semibold text-gray-700'>Doctor ID:</span>
+                        <span class='text-gray-800'>${doctorId}</span>
+                    </div>
+                    ` : ''}
+                    <div class='relative z-10 mt-4'>
+                        <span class='inline-block px-4 py-2 rounded-full bg-green-200 text-green-800 font-semibold text-sm'>🌟 Active Member</span>
+                    </div>
+                </div>
+            `;
+            return html;
+        }
+
+        function showProfileModal() {
+            const modalContainer = document.getElementById('modal-container');
+            const modalContent = document.getElementById('modal-content');
+            modalContent.classList.add('popup-gradient');
+            modalContent.innerHTML = getProfileDetails();
+            modalContainer.classList.remove('hidden');
+            modalContainer.classList.add('flex');
+        }
+
+        document.getElementById('profile-section').addEventListener('click', showProfileModal);
+    import { checkOnlineStatus, loadUserPreferences } from './utils.js';
+    import { initializeEventListeners, updateLanguage, switchUserType, setCurrentLanguage, setCurrentUserType } from './ui_handlers.js';
+
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeEventListeners();
+            checkOnlineStatus();
+            const preferences = loadUserPreferences();
+            setCurrentLanguage(preferences.language);
+            setCurrentUserType(preferences.userType);
+            switchUserType(preferences.userType);
+            updateLanguage();
+        });
+    </script>
+</body>
+</html>
